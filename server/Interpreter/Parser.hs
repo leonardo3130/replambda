@@ -4,7 +4,7 @@ module Parser where
 import Lexer
 import Syntax
 
-data Var = Var String
+newtype Var = Var String
 
 data AST
   = NodeVar Var
