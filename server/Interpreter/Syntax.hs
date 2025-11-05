@@ -1,17 +1,16 @@
---   Defines the abstract syntax tree (AST) for the untyped (naive) lambda calculus.
 module Syntax where
 
--- grammar 
+-- grammar
 data Term
-  = Var String        
+  = Var String
   | Lam String Term
   | App Term Term
   deriving (Eq)
 
 -- pretty-printing
 instance Show Term where
-  show (Var x)     = x
-  show (Lam x t)   = "(\\" ++ x ++ ". " ++ show t ++ ")"
+  show (Var x) = x
+  show (Lam x t) = "(\\" ++ x ++ ". " ++ show t ++ ")"
   show (App t1 t2) = "(" ++ show t1 ++ " " ++ show t2 ++ ")"
 
 -- helper constructors
@@ -21,5 +20,5 @@ lam = Lam
 app :: Term -> Term -> Term
 app = App
 
-var :: String -> Term 
+var :: String -> Term
 var = Var

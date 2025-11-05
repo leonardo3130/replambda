@@ -1,0 +1,24 @@
+name: replambda-server
+version: 0.1.0.0
+license: MIT
+author: leonardo3130
+maintainer: leonardopo313@gmail.com
+category: Language
+
+library:
+  source-dirs: Interpreter
+  exposed-modules:
+    - Syntax
+    - Lexer
+    - Parser
+    - Utils
+  dependencies:
+    - base >=4.18 && <5
+
+executables:
+  replambda-server:
+    main: Main.hs
+    source-dirs: app
+    dependencies:
+      - base >=4.18 && <5
+      - replambda-server
