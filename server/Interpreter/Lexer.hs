@@ -11,7 +11,7 @@ data Token = Token TokenType String deriving (Show, Eq)
 
 -- Wrapper
 lexLambda :: String -> [Token]
-lexLambda s = tokenize s []
+lexLambda s = removeSpaces (tokenize s [])
 
 -- Produces a list of token in the submitted Lambda calculus program
 tokenize :: String -> String -> [Token]
@@ -33,3 +33,9 @@ tokenize (x : end) currentVar
       if null currentVar
         then tokenize end []
         else Token Var (reverse currentVar) : tokenize end []
+
+-- Remove reduntant spaces (we need space since we allowed variables with multiple chars, if we didn't have space variable "aa" would be an application)
+removeSpaces :: [Token] -> [Token]
+removeSpaces [] = []
+removeSpaces (Token Space _ : Token Space _ : end) = Token Space " " : removeSpaces end
+removeSpaces (head : end) = head : removeSpaces end

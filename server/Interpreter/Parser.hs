@@ -13,5 +13,7 @@ data AST
 
 -- deriving (Show, Eq)
 
+-- Praser using Pratt parsing algorith, see https://en.wikipedia.org/wiki/Operator-precedence_parser#Pratt_parsing for more
+
 -- Lambda calculus recursive descent parser
 -- parse :: [Token] -> AST

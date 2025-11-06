@@ -34,6 +34,12 @@ executable replambda-server
   hs-source-dirs:
       app
   build-depends:
-      base >=4.18 && <5
+      aeson
+    , base >=4.18 && <5
     , replambda-server
+    , scotty
+    , text
+    , wai
+    , wai-extra
+    , warp
   default-language: Haskell2010
