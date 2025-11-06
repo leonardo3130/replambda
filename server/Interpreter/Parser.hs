@@ -17,3 +17,7 @@ data AST
 
 -- Lambda calculus recursive descent parser
 -- parse :: [Token] -> AST
+
+infixBindingPower :: Token -> (Int, Int)
+infixBindingPower (Token Lam _) = (5, 6)
+infixBindingPower (Token Space _) = (10, 9) -- Space is the application 'operator'

@@ -11,7 +11,7 @@ data Token = Token TokenType String deriving (Show, Eq)
 
 -- Wrapper
 lexLambda :: String -> [Token]
-lexLambda s = removeSpaces (tokenize s [])
+lexLambda = removeUselessSpaces . removeRedundantSpaces . (`tokenize` [])
 
 -- Produces a list of token in the submitted Lambda calculus program
 tokenize :: String -> String -> [Token]
@@ -34,8 +34,23 @@ tokenize (x : end) currentVar
         then tokenize end []
         else Token Var (reverse currentVar) : tokenize end []
 
--- Remove reduntant spaces (we need space since we allowed variables with multiple chars, if we didn't have space variable "aa" would be an application)
-removeSpaces :: [Token] -> [Token]
-removeSpaces [] = []
-removeSpaces (Token Space _ : Token Space _ : end) = Token Space " " : removeSpaces end
-removeSpaces (head : end) = head : removeSpaces end
+-- Remove redundant spaces (we need space since we allowed variables with multiple chars, if we didn't have space variable "aa" would be an application)
+removeRedundantSpaces :: [Token] -> [Token]
+removeRedundantSpaces [] = []
+removeRedundantSpaces (Token Space _ : Token Space _ : end) = Token Space " " : removeRedundantSpaces end
+removeRedundantSpaces (head : end) = head : removeRedundantSpaces end
+
+-- Remove non-application spaces, keep only those spaces who are relevant for application
+removeUselessSpaces :: [Token] -> [Token]
+removeUselessSpaces [] = []
+removeUselessSpaces [t] = [t]
+removeUselessSpaces (t1@(Token k1 s1) : Token Space _ : t2@(Token k2 s2) : rest) -- t1@... is called argument capture --> give name to matched value
+  | needSpace k1 k2 = t1 : Token Space " " : t2 : removeUselessSpaces rest
+  | otherwise = t1 : t2 : removeUselessSpaces rest
+  where
+    needSpace RPar LPar = True
+    needSpace RPar Var = True
+    needSpace Var LPar = True
+    needSpace Var Var = True
+    needSpace _ _ = False
+removeUselessSpaces (t : ts) = t : removeUselessSpaces ts
