@@ -3,20 +3,18 @@ module Lexer where
 
 import Data.Char (isAlpha, isSpace)
 
--- import Syntax
-
-data TokenType = Var | LPar | RPar | Lam | Dot | Space deriving (Enum, Show, Eq)
+data TokenType = Var | LPar | RPar | Lam | Dot | Space | End deriving (Enum, Show, Eq)
 
 data Token = Token TokenType String deriving (Show, Eq)
 
 -- Wrapper
 lexLambda :: String -> [Token]
-lexLambda = removeUselessSpaces . removeRedundantSpaces . (`tokenize` [])
+lexLambda = reverse . removeUselessSpaces . removeRedundantSpaces . reverse . removeRedundantSpaces . reverse . (`tokenize` [])
 
 -- Produces a list of token in the submitted Lambda calculus program
 tokenize :: String -> String -> [Token]
-tokenize [] [] = []
-tokenize [] currentVar = [Token Var (reverse currentVar)]
+tokenize [] [] = [Token End "END"]
+tokenize [] currentVar = Token Var (reverse currentVar) : [Token End "END"]
 tokenize ('\\' : end) [] = Token Lam "\\" : tokenize end []
 tokenize ('\\' : end) currentVar = Token Var (reverse currentVar) : Token Lam "\\" : tokenize end []
 tokenize (' ' : end) [] = Token Space " " : tokenize end []
@@ -46,11 +44,12 @@ removeUselessSpaces [] = []
 removeUselessSpaces [t] = [t]
 removeUselessSpaces (t1@(Token k1 s1) : Token Space _ : t2@(Token k2 s2) : rest) -- t1@... is called argument capture --> give name to matched value
   | needSpace k1 k2 = t1 : Token Space " " : t2 : removeUselessSpaces rest
-  | otherwise = t1 : t2 : removeUselessSpaces rest
+  | otherwise = t1 : removeUselessSpaces (t2 : rest)
   where
     needSpace RPar LPar = True
     needSpace RPar Var = True
     needSpace Var LPar = True
     needSpace Var Var = True
     needSpace _ _ = False
+removeUselessSpaces (t@(Token Space _) : ts) = removeUselessSpaces ts
 removeUselessSpaces (t : ts) = t : removeUselessSpaces ts

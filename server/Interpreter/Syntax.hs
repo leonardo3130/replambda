@@ -2,14 +2,14 @@ module Syntax where
 
 -- grammar
 data Term
-  = Var String
+  = Variable String
   | Ab String Term
   | App Term Term
   deriving (Eq)
 
 -- pretty-printing
 instance Show Term where
-  show (Var x) = x
+  show (Variable x) = x
   show (Ab x t) = "(\\" ++ x ++ ". " ++ show t ++ ")"
   show (App t1 t2) = "(" ++ show t1 ++ " " ++ show t2 ++ ")"
 
@@ -21,4 +21,4 @@ app :: Term -> Term -> Term
 app = App
 
 var :: String -> Term
-var = Var
+var = Variable
