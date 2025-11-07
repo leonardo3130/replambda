@@ -28,6 +28,8 @@ parserLoop left (h : rest) bp
   | Token Lam _ <- h = if lbp < bp then left else abstr left (parseExpression rest rbp)
   | Token Space _ <- h = if lbp < bp then left else app left (parseExpression rest rbp)
   | Token End _ <- h = left -- end
+  | Token Var _ <- h = error "var"
+  | Token Dot _ <- h = error "dot"
   | otherwise = error "Bad token"
   where
     (lbp, rbp) = infixBindingPower h
@@ -36,11 +38,14 @@ handleFirstToken :: Token -> AST
 handleFirstToken (Token Var v) = var (Variable v)
 handleFirstToken _ = error "Bad token"
 
--- Main parsing function
 parseExpression :: [Token] -> Int -> AST
 parseExpression (h : rest) bp
   | Token Var _ <- h = parserLoop (handleFirstToken h) rest bp
   | otherwise = error "Unexpected Token"
+
+-- Main parsing function
+parseLambda :: [Token] -> AST
+parseLambda tokens = parseExpression tokens 0
 
 -- Decide binding power (important for precedence and operator associativity)
 infixBindingPower :: Token -> (Int, Int)
