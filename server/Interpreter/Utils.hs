@@ -2,9 +2,21 @@
 module Utils where
 
 import Data.Char (isSpace)
+import Parser
 
--- Trim whitespaces
-trim :: String -> String
-trim = f . f -- . Is the function composition operator, it combines 2 functions in a single one
-  where
-    f = reverse . dropWhile isSpace -- Function "dropWhile" return a suffix that start with an element that doesn't satisfy the condition
+prettyPrint :: AST -> String
+prettyPrint ast = case ast of
+  NodeVar (Variable v) -> v
+  Application f x ->
+    let fStr = case f of
+          Application _ _ -> "(" ++ prettyPrint f ++ ")"
+          Abstraction _ _ -> "(" ++ prettyPrint f ++ ")"
+          _ -> prettyPrint f
+        xStr = case x of
+          Application _ _ -> "(" ++ prettyPrint x ++ ")"
+          Abstraction _ _ -> "(" ++ prettyPrint x ++ ")"
+          _ -> prettyPrint x
+     in fStr ++ " " ++ xStr
+  Abstraction (NodeVar (Variable v)) body ->
+    "\\" ++ v ++ ". " ++ prettyPrint body
+  Abstraction _ _ -> error "Abstraction must have a variable as first AST"

@@ -22,33 +22,39 @@ app = Application
 abstr :: AST -> AST -> AST
 abstr = Abstraction
 
--- Praser using Pratt parsing algorith, see https://en.wikipedia.org/wiki/Operator-precedence_parser#Pratt_parsing for more
-parserLoop :: AST -> [Token] -> Int -> AST
-parserLoop left (h : rest) bp
-  | Token Lam _ <- h = if lbp < bp then left else abstr left (parseExpression rest rbp)
-  | Token Space _ <- h = if lbp < bp then left else app left (parseExpression rest rbp)
-  | Token End _ <- h = left -- end
-  | Token Var _ <- h = error "var"
-  | Token Dot _ <- h = error "dot"
-  | otherwise = error "Bad token"
-  where
-    (lbp, rbp) = infixBindingPower h
+-- Parser using Pratt parsing algorithm, see https://en.wikipedia.org/wiki/Operator-precedence_parser#Pratt_parsing for more
+parserLoop :: AST -> [Token] -> Int -> (AST, [Token])
+parserLoop left all@(h : rest) bp =
+  case h of
+    Token Space _ ->
+      let (lbp, rbp) = bindingPower h
+       in if lbp < bp
+            then (left, all)
+            else
+              let (rhs, rest') = parseExpression rest rbp
+               in parserLoop (app left rhs) rest' bp
+    Token Dot _ -> (left, all) -- ridondante
+    _ -> (left, all)
 
-handleFirstToken :: Token -> AST
-handleFirstToken (Token Var v) = var (Variable v)
-handleFirstToken _ = error "Bad token"
-
-parseExpression :: [Token] -> Int -> AST
-parseExpression (h : rest) bp
-  | Token Var _ <- h = parserLoop (handleFirstToken h) rest bp
-  | otherwise = error "Unexpected Token"
+parseExpression :: [Token] -> Int -> (AST, [Token])
+parseExpression [] _ = error "Unexpected end of input"
+parseExpression (t : ts) bp =
+  let (lhs, restAfterLhs) = case t of
+        Token Var v -> (var (Variable v), ts)
+        Token Lam _ -> case ts of
+          (Token Var v : Token Dot _ : rest) ->
+            let (body, rest') = parseExpression rest 0
+             in (abstr (var (Variable v)) body, rest')
+          _ -> error "Malformed lambda abstraction"
+        _ -> error ("Unexpected token: " ++ show t)
+   in parserLoop lhs restAfterLhs bp
 
 -- Main parsing function
 parseLambda :: [Token] -> AST
-parseLambda tokens = parseExpression tokens 0
+parseLambda tokens = fst (parseExpression tokens 0)
 
 -- Decide binding power (important for precedence and operator associativity)
-infixBindingPower :: Token -> (Int, Int)
-infixBindingPower (Token Lam _) = (5, 6)
-infixBindingPower (Token Space _) = (8, 7) -- Space is the application 'operator'
-infixBindingPower _ = error "Invalid operator"
+bindingPower :: Token -> (Int, Int)
+bindingPower (Token Lam _) = (6, 5)
+bindingPower (Token Space _) = (7, 8) -- Space is the application 'operator'
+bindingPower _ = error "Invalid operator"

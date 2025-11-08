@@ -9,7 +9,7 @@ data Token = Token TokenType String deriving (Show, Eq)
 
 -- Wrapper
 lexLambda :: String -> [Token]
-lexLambda s = reverse (Token End "END" : preprocess s)
+lexLambda s = preprocess s ++ [Token End "END"]
 
 -- String preprocessing (spaces handling)
 preprocess :: String -> [Token]
