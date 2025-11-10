@@ -46,6 +46,11 @@ parseExpression (t : ts) bp =
             let (body, rest') = parseExpression rest 0
              in (abstr (var (Variable v)) body, rest')
           _ -> error "Malformed lambda abstraction"
+        Token LPar _ ->
+          let (expr, rest') = parseExpression ts 0
+           in case rest' of
+                (Token RPar _ : rest'') -> (expr, rest'')
+                _ -> error "Expected closing parenthesis"
         _ -> error ("Unexpected token: " ++ show t)
    in parserLoop lhs restAfterLhs bp
 
