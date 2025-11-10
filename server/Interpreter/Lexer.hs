@@ -60,5 +60,7 @@ removeUselessSpaces (t1@(Token k1 s1) : t2@(Token Space _) : t3@(Token k3 s3) : 
     needSpace RPar Var = True
     needSpace Var LPar = True
     needSpace Var Var = True
+    -- needSpace Var Lam = True
+    -- needSpace RPar Lam = True
     needSpace _ _ = False
 removeUselessSpaces (t1 : rest) = t1 : removeUselessSpaces rest

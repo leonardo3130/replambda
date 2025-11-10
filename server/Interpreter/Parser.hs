@@ -4,7 +4,7 @@ module Parser where
 import Lexer
 
 newtype Variable = Variable String
-  deriving (Show)
+  deriving (Show, Eq)
 
 data AST
   = NodeVar Variable

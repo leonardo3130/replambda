@@ -19,6 +19,8 @@ library
       Lexer
       Parser
       Utils
+      Alpha
+      Beta
   other-modules:
       Paths_replambda_server
   hs-source-dirs:
