@@ -29,3 +29,13 @@ betaStep ast =
         Just t' -> Just (Abstraction var t')
         Nothing -> Nothing
     NodeVar _ -> Nothing
+
+-- performs step by step beta reduction, return list of AST
+betaStepByStep :: Maybe AST -> [AST]
+betaStepByStep t =
+  case t of
+    Nothing -> []
+    Just t' ->
+      case betaStep t' of
+        Just t'' -> t'' : betaStepByStep (Just t'')
+        Nothing -> []

@@ -4,13 +4,13 @@ import Beta
 import Lexer
 import Parser
 import Syntax
-import Utils (prettyPrint)
+import Utils (prettyPrint, prettyPrintList)
 
 main :: IO ()
 main = do
   putStrLn "Lambda REPL server running..."
 
-  let tokens = lexLambda "(\\x.x) (\\z.z)"
+  let tokens = lexLambda "(\\x.x) ((\\z.z) (\\y.y))"
 
   -- see tokens
   print tokens
@@ -19,4 +19,4 @@ main = do
   print (prettyPrint (parseLambda tokens))
 
   -- see beta reduced AST
-  print (prettyPrint (betaReduce (parseLambda tokens)))
+  print (prettyPrintList (betaStepByStep (Just (parseLambda tokens))))

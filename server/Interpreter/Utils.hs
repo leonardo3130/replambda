@@ -2,7 +2,7 @@
 module Utils where
 
 import Data.Char (isSpace)
-import Data.List (nub)
+import Data.List (intercalate, nub)
 import Lexer
 import Parser
 
@@ -23,6 +23,10 @@ prettyPrint ast = case ast of
   Abstraction (NodeVar (Variable v)) body ->
     "\\" ++ v ++ ". (" ++ prettyPrint body ++ ")"
   Abstraction _ _ -> error "Abstraction must have a variable as first AST"
+
+-- print list of AST in a pretty way
+prettyPrintList :: [AST] -> String
+prettyPrintList asts = intercalate "\n" (map prettyPrint asts)
 
 -- Check if variable is in list
 contains :: (Eq a) => [a] -> a -> Bool
