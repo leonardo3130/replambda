@@ -30,3 +30,4 @@ executables:
       - wai
       - wai-extra
       - warp
+      - aeson

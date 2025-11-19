@@ -1,6 +1,10 @@
 -- Lexical analysis for the naive lambda calculus.
+{-# LANGUAGE OverloadedStrings #-}
+
 module Parser where
 
+import Data.Aeson (FromJSON, ToJSON (..), object, parseJSON, toJSON, (.:), (.=))
+import qualified Data.Aeson as Data.Aeson.Key
 import Lexer
 
 newtype Variable = Variable String
@@ -11,6 +15,55 @@ data AST
   | Application AST AST
   | Abstraction AST AST -- first AST is a variable node
   deriving (Show)
+
+-- JSON instances for API return values
+instance ToJSON Variable where
+  toJSON (Variable v) = toJSON v
+
+instance FromJSON Variable where
+  parseJSON v = do
+    x <- parseJSON v
+    return (Variable x)
+
+instance ToJSON AST where
+  toJSON (NodeVar v) =
+    object
+      [ "operation" .= ("var" :: String),
+        "var" .= v
+      ]
+  toJSON (Application t1 t2) =
+    object
+      [ "operation" .= ("app" :: String),
+        "body" .= t1,
+        "argument" .= t2
+      ]
+  toJSON (Abstraction (NodeVar (Variable v)) t) =
+    object
+      [ "operation" .= ("lam" :: String),
+        "lam_var" .= v,
+        "body" .= t
+      ]
+
+instance FromJSON AST where
+  parseJSON =
+    Data.Aeson.Key.withObject
+      "AST"
+      ( \o -> do
+          op <- o Data.Aeson.Key..: "operation"
+          case (op :: String) of
+            "var" -> do
+              v <- o Data.Aeson.Key..: "var"
+              return (NodeVar v)
+            "app" -> do
+              t1 <- o Data.Aeson.Key..: "body"
+              t2 <- o Data.Aeson.Key..: "argument"
+              return (Application t1 t2)
+            "lam" -> do
+              v <- o Data.Aeson.Key..: "lam_var"
+              t <- o Data.Aeson.Key..: "body"
+              return (Abstraction (NodeVar (Variable v)) t)
+            _ -> fail "Unknown operation"
+      )
 
 -- constructors
 var :: Variable -> AST

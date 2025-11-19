@@ -1,11 +1,58 @@
 -- Lexical analysis for the naive lambda calculus.
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Lexer where
 
+import Data.Aeson (FromJSON, ToJSON (..), object, parseJSON, toJSON, (.:), (.=))
+import qualified Data.Aeson as Data.Aeson.Key
 import Data.Char (isAlpha, isSpace)
 
 data TokenType = Var | LPar | RPar | Lam | Dot | Space | End deriving (Enum, Show, Eq)
 
 data Token = Token TokenType String deriving (Show, Eq)
+
+-- JSON instances for API return values
+instance ToJSON TokenType where
+  toJSON Var = "variable"
+  toJSON LPar = "left_par"
+  toJSON RPar = "right_par"
+  toJSON Lam = "lambda"
+  toJSON Dot = "dot"
+  toJSON Space = "space"
+  toJSON End = "end"
+
+instance FromJSON TokenType where
+  parseJSON =
+    Data.Aeson.Key.withText
+      "TokenType"
+      ( \case
+          "variable" -> return Var
+          "left_par" -> return LPar
+          "right_par" -> return RPar
+          "lambda" -> return Lam
+          "dot" -> return Dot
+          "space" -> return Space
+          "end" -> return End
+          _ -> fail "Invalid token type"
+      )
+
+instance ToJSON Token where
+  toJSON (Token t s) =
+    object
+      [ "type" .= toJSON t,
+        "value" .= s
+      ]
+
+instance FromJSON Token where
+  parseJSON =
+    Data.Aeson.Key.withObject
+      "Token"
+      ( \o -> do
+          t <- o Data.Aeson.Key..: "type"
+          s <- o Data.Aeson.Key..: "value"
+          return (Token t s)
+      )
 
 -- Wrapper
 lexLambda :: String -> [Token]

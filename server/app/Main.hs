@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Beta
@@ -5,18 +7,40 @@ import Lexer
 import Parser
 import Syntax
 import Utils (prettyPrint, prettyPrintList)
+import Web.Scotty
 
 main :: IO ()
-main = do
-  putStrLn "Lambda REPL server running..."
+main = scotty 3000 $ do
+  post "/full-reduce" $ do
+    expr <- jsonData :: ActionM String
+    let tokens = lexLambda expr
+        parsedAST = parseLambda tokens
+        reducedAST = last (betaStepByStep (Just parsedAST))
+    json reducedAST
 
-  let tokens = lexLambda "(\\x.x) ((\\z.z) (\\y.y))"
+  post "/parse" $ do
+    expr <- jsonData :: ActionM String
+    let tokens = lexLambda expr
+        parsedAST = parseLambda tokens
+    json parsedAST
 
-  -- see tokens
-  print tokens
+  post "/tokens" $ do
+    expr <- jsonData :: ActionM String
+    let tokens = lexLambda expr
+    json tokens
 
-  -- see parsed AST
-  print (prettyPrint (parseLambda tokens))
+  post "/reduce-once" $ do
+    expr <- jsonData :: ActionM String
+    let tokens = lexLambda expr
+        parsedAST = parseLambda tokens
+        reducedAST = betaStep parsedAST
+    case reducedAST of
+      Just ast -> json ast
+      Nothing -> json ("No reduction possible" :: String)
 
-  -- see beta reduced AST
-  print (prettyPrintList (betaStepByStep (Just (parseLambda tokens))))
+  post "/reduce-steps" $ do
+    expr <- jsonData :: ActionM String
+    let tokens = lexLambda expr
+        parsedAST = parseLambda tokens
+        reducedASTs = betaStepByStep (Just parsedAST)
+    json reducedASTs
