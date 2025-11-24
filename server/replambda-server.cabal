@@ -26,8 +26,9 @@ library
   hs-source-dirs:
       Interpreter
   build-depends:
-      base >=4.18 && <5
-      , aeson
+      aeson
+    , base >=4.18 && <5
+    , text
   default-language: Haskell2010
 
 executable replambda-server
@@ -43,6 +44,7 @@ executable replambda-server
     , scotty
     , text
     , wai
+    , wai-cors
     , wai-extra
     , warp
   default-language: Haskell2010

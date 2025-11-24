@@ -16,6 +16,8 @@ library:
     - Beta
   dependencies:
     - base >=4.18 && <5
+    - aeson
+    - text
 
 executables:
   replambda-server:
@@ -29,5 +31,5 @@ executables:
       - text
       - wai
       - wai-extra
+      - wai-cors
       - warp
-      - aeson

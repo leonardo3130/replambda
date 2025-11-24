@@ -4,7 +4,7 @@ import { Token } from "../types/Token";
 export class ApiManager {
   private baseUrl: string;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string = import.meta.env.VITE_API_URL) {
     this.baseUrl = baseUrl.replace(/\/$/, ""); // remove eventual trailing slash
   }
 
@@ -31,23 +31,23 @@ export class ApiManager {
     return transform ? transform(json) : (json as T);
   }
 
-  async parse(payload: string) {
+  async parse(payload: string): Promise<AST> {
     return this.post<AST>("parse", payload);
   }
 
-  async fullReduce(payload: string) {
+  async fullReduce(payload: string): Promise<AST> {
     return this.post<AST>("full-reduce", payload);
   }
 
-  async stepReduce(payload: string) {
+  async stepReduce(payload: string): Promise<AST> {
     return this.post<AST>("reduce-once", payload);
   }
 
-  async stepByStepReduce(payload: string) {
+  async stepByStepReduce(payload: string): Promise<AST[]> {
     return this.post<AST[]>("reduce-steps", payload);
   }
 
-  async tokenization(payload: string) {
+  async tokenization(payload: string): Promise<Token[]> {
     return this.post<Token[]>("tokens", payload);
   }
 }

@@ -3,7 +3,9 @@
 module Main where
 
 import Beta
+import Control.Monad.IO.Class (liftIO)
 import Lexer
+import Network.Wai.Middleware.Cors
 import Parser
 import Syntax
 import Utils (prettyPrint, prettyPrintList)
@@ -11,8 +13,11 @@ import Web.Scotty
 
 main :: IO ()
 main = scotty 3000 $ do
+  middleware $ cors (const $ Just viteCorsPolicy)
+
   post "/full-reduce" $ do
     expr <- jsonData :: ActionM String
+    liftIO $ putStrLn ("Debug: " ++ expr)
     let tokens = lexLambda expr
         parsedAST = parseLambda tokens
         reducedAST = last (betaStepByStep (Just parsedAST))
@@ -44,3 +49,11 @@ main = scotty 3000 $ do
         parsedAST = parseLambda tokens
         reducedASTs = betaStepByStep (Just parsedAST)
     json reducedASTs
+
+viteCorsPolicy :: CorsResourcePolicy
+viteCorsPolicy =
+  simpleCorsResourcePolicy
+    { corsOrigins = Just (["http://localhost:5173"], True), -- ✅ allow Vite
+      corsMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      corsRequestHeaders = ["Content-Type", "Authorization"]
+    }

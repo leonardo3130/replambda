@@ -1,5 +1,8 @@
 import "./App.css";
+import { TerminalController } from "./components/REPL";
 
-function App() {}
+function App() {
+  return <TerminalController />;
+}
 
 export default App;
