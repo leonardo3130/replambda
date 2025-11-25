@@ -18,3 +18,28 @@
   /*white-space: pre;*/
   text-align: left; /* Explicitly set left alignment */
 }
+
+.react-terminal-window-buttons button.red-btn {
+  background-color: #ff5f56;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.react-terminal-window-buttons button.yellow-btn {
+  background-color: #ffbd2e;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  margin-right: 8px;
+}
+.react-terminal-window-buttons button.green-btn {
+  background-color: #27c93f;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+}

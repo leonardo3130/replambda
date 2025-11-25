@@ -4,65 +4,76 @@ import Terminal, {
   TerminalOutput,
   TerminalInput,
 } from "react-terminal-ui";
-import { apiManagerInstance } from "../api/apiManagerInstance";
+import { v4 as uuidv4 } from "uuid";
+// import { apiManagerInstance } from "../api/apiManagerInstance";
 
 export const TerminalController = () => {
   const [terminalLineData, setTerminalLineData] = useState([
-    <TerminalOutput key={-1}>Welcome !</TerminalOutput>,
+    <TerminalOutput key={uuidv4()}>Welcome !</TerminalOutput>,
   ]);
-  const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState<string>("");
-  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const [{ history, index }, setTerminalHistory] = useState<{
+    history: string[];
+    index: number;
+  }>({ history: [], index: -1 });
 
-  const increaseHistoryIndex = () => {
-    setHistoryIndex((prevIndex) =>
-      Math.min(prevIndex + 1, terminalHistory.length - 1),
-    );
+  const moveHistoryIndex = (direction: 1 | -1) => {
+    setTerminalHistory((prev) => {
+      const max = prev.history.length - 1;
+      const newIndex = Math.min(Math.max(prev.index + direction, 0), max);
+      const notValid = newIndex === prev.index;
 
-    setInputValue(
-      terminalHistory[Math.min(historyIndex + 1, terminalHistory.length - 1)] ||
-      "",
-    );
-  };
+      setTerminalLineData((prevData) => {
+        if (notValid) return prevData;
 
-  useEffect(() => {
-    setTerminalLineData((prevData) => [
-      ...prevData.filter(
-        (line) => !(line.type === TerminalInput && line.key === "current"),
-      ),
-      <TerminalInput key="current">{inputValue}</TerminalInput>,
-    ]);
-  }, [inputValue]);
+        const copy = [...prevData];
+        copy[copy.length - 1] = (
+          <TerminalInput key={uuidv4()}>{prev.history[newIndex]}</TerminalInput>
+        );
+        return copy;
+      });
 
-  const decreaseHistoryIndex = () => {
-    setHistoryIndex((prevIndex) => Math.max(prevIndex - 1, -1));
-
-    setInputValue(terminalHistory[Math.max(historyIndex - 1, -1)] || "");
+      return {
+        history: prev.history,
+        index: newIndex,
+      };
+    });
   };
 
   const handleInput = async (input: string) => {
-    input = input.replaceAll("λ", "\\").trim(); // Replace λ with \\ for backend compatibility  ;
+    if (input.trim().length == 0) return;
+
+    input = input.replaceAll("λ", "\\\\").trim(); // Replace λ with \\ for backend compatibility  ;
     let ld = [...terminalLineData];
-    if (input.toLocaleLowerCase().trim() === "clear") {
-      setTerminalHistory((history) => [...history, "clear"]);
+    if (input.trim() === "clear") {
+      setTerminalHistory((prev) => ({
+        history: [...prev.history, "clear"],
+        index: prev.index + 1,
+      }));
+
       ld = [];
-    } else if (input.toLocaleLowerCase().trim() === "history") {
-      setTerminalHistory((history) => [...history, "history"]);
-      ld.push(<TerminalInput key={ld.length}>{input}</TerminalInput>);
-      for (let i = 0; i < terminalHistory.length; i++) {
-        const line = terminalHistory[i];
-        ld.push(
-          <TerminalOutput key={terminalHistory.length + i}>
-            {line}
-          </TerminalOutput>,
-        );
+    } else if (input.trim() === "history") {
+      setTerminalHistory((prev) => ({
+        history: [...prev.history, "history"],
+        index: prev.index + 1,
+      }));
+
+      ld.push(<TerminalInput key={uuidv4()}>{input}</TerminalInput>);
+
+      for (let i = 0; i < history.length; i++) {
+        const line = history[i];
+        ld.push(<TerminalOutput key={uuidv4()}>{line}</TerminalOutput>);
       }
     } else {
-      const reduced = await apiManagerInstance.fullReduce(input);
-      console.log(reduced);
-      ld.push(<TerminalInput key={ld.length}>{input}</TerminalInput>);
-      ld.push(<TerminalOutput key={ld.length + 1}>{input}</TerminalOutput>);
-      setTerminalHistory((history) => [...history, input]);
+      // const reduced = await apiManagerInstance.fullReduce(input);
+      // console.log(reduced);
+
+      ld.push(<TerminalInput key={uuidv4()}>{input}</TerminalInput>);
+      ld.push(<TerminalOutput key={uuidv4()}>{input}</TerminalOutput>);
+
+      setTerminalHistory((prev) => ({
+        history: [...prev.history, input.trim()],
+        index: prev.index + 1,
+      }));
     }
     setTerminalLineData(ld);
   };
@@ -72,9 +83,9 @@ export const TerminalController = () => {
       className="terminal-container"
       onKeyDown={(e) => {
         if (e.key === "ArrowUp") {
-          decreaseHistoryIndex();
+          moveHistoryIndex(-1);
         } else if (e.key === "ArrowDown") {
-          increaseHistoryIndex();
+          moveHistoryIndex(1);
         }
       }}
     >
@@ -83,7 +94,8 @@ export const TerminalController = () => {
         colorMode={ColorMode.Dark}
         onInput={handleInput}
         startingInputValue="λx.x"
-        height="100vh"
+        height="80vh"
+        TopButtonsPanel={() => null}
       >
         {terminalLineData}
       </Terminal>
