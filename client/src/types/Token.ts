@@ -28,4 +28,8 @@ export class Token {
   static fromJSON(json: RawToken): Token {
     return new Token(json.type, json.value);
   }
+
+  prettyPrint(): string {
+    return `${this.type}: ${this.value}`;
+  }
 }
