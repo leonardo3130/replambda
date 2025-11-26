@@ -12,12 +12,17 @@ import Utils (prettyPrint, prettyPrintList)
 import Web.Scotty
 
 main :: IO ()
+-- main = do
+--   let tokens = lexLambda "(\\x.x  x) zz"
+--       parsedAST = parseLambda tokens
+--       reducedAST = last (betaStepByStep (Just parsedAST))
+-- putStrLn (prettyPrint reducedAST)
+
 main = scotty 3000 $ do
   middleware $ cors (const $ Just viteCorsPolicy)
 
   post "/full-reduce" $ do
     expr <- jsonData :: ActionM String
-    liftIO $ putStrLn ("Debug: " ++ expr)
     let tokens = lexLambda expr
         parsedAST = parseLambda tokens
         reducedAST = last (betaStepByStep (Just parsedAST))
@@ -53,7 +58,7 @@ main = scotty 3000 $ do
 viteCorsPolicy :: CorsResourcePolicy
 viteCorsPolicy =
   simpleCorsResourcePolicy
-    { corsOrigins = Just (["http://localhost:5173"], True), -- ✅ allow Vite
+    { corsOrigins = Just (["http://localhost:5173"], True),
       corsMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       corsRequestHeaders = ["Content-Type", "Authorization"]
     }
