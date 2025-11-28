@@ -14,7 +14,7 @@ data AST
   = NodeVar Variable
   | Application AST AST
   | Abstraction AST AST -- first AST is a variable node
-  deriving (Show)
+  deriving (Show, Eq)
 
 -- JSON instances for API return values
 instance ToJSON Variable where
