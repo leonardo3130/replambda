@@ -14,7 +14,7 @@ export interface RawAbstraction {
 
 export interface RawVariable {
   operation: "var";
-  name: string;
+  var: string;
 }
 
 // Union type for all raw AST nodes
@@ -40,7 +40,7 @@ export abstract class AST implements PrettyPrintable {
           AST.fromJSON(json.body),
         );
       case "var":
-        return new Variable(json.name);
+        return new Variable(json.var);
       default:
         throw new Error(`Unknown AST operation`);
     }
@@ -60,7 +60,7 @@ export class Application extends AST {
   }
 
   prettyPrint(): string {
-    return `(${this.body.prettyPrint()} ${this.argument.prettyPrint()})`;
+    return `(${this.body.prettyPrint()}) (${this.argument.prettyPrint()})`;
   }
 }
 

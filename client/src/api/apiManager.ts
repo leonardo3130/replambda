@@ -1,5 +1,5 @@
-import { AST } from "../types/AST";
-import { Token } from "../types/Token";
+import { AST, type RawAST } from "../types/AST";
+import { Token, type RawToken } from "../types/Token";
 
 export class ApiManager {
   private baseUrl: string;
@@ -8,11 +8,7 @@ export class ApiManager {
     this.baseUrl = baseUrl.replace(/\/$/, ""); // remove eventual trailing slash
   }
 
-  private async post<T>(
-    endpoint: string,
-    payload: string,
-    transform?: (json: unknown) => T,
-  ): Promise<T> {
+  private async post<T>(endpoint: string, payload: string): Promise<T> {
     const url = `${this.baseUrl}/${endpoint}`;
 
     const response = await fetch(url, {
@@ -28,26 +24,31 @@ export class ApiManager {
     }
 
     const json = await response.json();
-    return transform ? transform(json) : (json as T);
+    return json;
   }
 
   async parse(payload: string): Promise<AST> {
-    return await this.post<AST>("parse", payload);
+    const res = await this.post<RawAST>("parse", payload);
+    return AST.fromJSON(res);
   }
 
   async fullReduce(payload: string): Promise<AST> {
-    return await this.post<AST>("full-reduce", payload);
+    const res = await this.post<RawAST>("full-reduce", payload);
+    return AST.fromJSON(res);
   }
 
   async stepReduce(payload: string): Promise<AST> {
-    return await this.post<AST>("reduce-once", payload);
+    const res = await this.post<RawAST>("reduce-once", payload);
+    return AST.fromJSON(res);
   }
 
   async stepByStepReduce(payload: string): Promise<AST[]> {
-    return await this.post<AST[]>("reduce-steps", payload);
+    const res = await this.post<RawAST[]>("reduce-steps", payload);
+    return res.map((e) => AST.fromJSON(e));
   }
 
   async tokenization(payload: string): Promise<Token[]> {
-    return await this.post<Token[]>("tokens", payload);
+    const res = await this.post<RawToken[]>("tokens", payload);
+    return res.map((e) => Token.fromJSON(e));
   }
 }
