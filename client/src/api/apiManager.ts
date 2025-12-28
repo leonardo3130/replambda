@@ -32,22 +32,22 @@ export class ApiManager {
   }
 
   async parse(payload: string): Promise<AST> {
-    return this.post<AST>("parse", payload);
+    return await this.post<AST>("parse", payload);
   }
 
   async fullReduce(payload: string): Promise<AST> {
-    return this.post<AST>("full-reduce", payload);
+    return await this.post<AST>("full-reduce", payload);
   }
 
   async stepReduce(payload: string): Promise<AST> {
-    return this.post<AST>("reduce-once", payload);
+    return await this.post<AST>("reduce-once", payload);
   }
 
   async stepByStepReduce(payload: string): Promise<AST[]> {
-    return this.post<AST[]>("reduce-steps", payload);
+    return await this.post<AST[]>("reduce-steps", payload);
   }
 
   async tokenization(payload: string): Promise<Token[]> {
-    return this.post<Token[]>("tokens", payload);
+    return await this.post<Token[]>("tokens", payload);
   }
 }

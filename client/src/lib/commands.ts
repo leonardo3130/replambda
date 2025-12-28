@@ -29,21 +29,21 @@ export async function handleCommand(
 ): Promise<AST | Token[] | AST[] | undefined> {
   switch (command) {
     case "parse":
-      return apiManagerInstance.parse(input);
+      return await apiManagerInstance.parse(input);
 
     case "tokenize":
-      return apiManagerInstance.tokenization(input);
+      return await apiManagerInstance.tokenization(input);
 
     case "reduce":
-      return apiManagerInstance.fullReduce(input);
+      return await apiManagerInstance.fullReduce(input);
 
     case "step":
-      return apiManagerInstance.stepReduce(input);
+      return await apiManagerInstance.stepReduce(input);
 
     case "stepbystep":
-      return apiManagerInstance.stepByStepReduce(input);
+      return await apiManagerInstance.stepByStepReduce(input);
 
     default:
-      return undefined;
+      return Promise.resolve(undefined);
   }
 }

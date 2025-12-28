@@ -5,7 +5,7 @@ import Terminal, {
   TerminalInput,
 } from "react-terminal-ui";
 import { v4 as uuidv4 } from "uuid";
-// import { handleCommand } from "../lib/commands";
+import { handleCommand } from "../lib/commands";
 import { helpMessage } from "../constants";
 
 export const TerminalController = () => {
@@ -28,19 +28,17 @@ export const TerminalController = () => {
       ld.push(
         <TerminalOutput key={uuidv4()}>{"\n" + helpMessage}</TerminalOutput>,
       );
-    }
-    // else if (
-    //   ["parse", "tokenize", "reduce", "step", "stepbystep"].includes(
-    //     input.trim().split(" ")[0],
-    //   )
-    // ) {
-    //   const splitted = input.trim().split(" ");
-    //   const command = splitted[0];
-    //   splitted.shift();
-    //   const expr = splitted.join(" ");
-    //   handleCommand(command, expr);
-    // }
-    else {
+    } else if (
+      ["parse", "tokenize", "reduce", "step", "stepbystep"].includes(
+        input.trim().split(" ")[0],
+      )
+    ) {
+      const splitted = input.trim().split(" ");
+      const command = splitted[0].toLowerCase();
+      splitted.shift();
+      const expr = splitted.join(" ");
+      handleCommand(command, expr);
+    } else {
       ld.push(<TerminalInput key={uuidv4()}>{input.trim()}</TerminalInput>);
       ld.push(
         <TerminalOutput
