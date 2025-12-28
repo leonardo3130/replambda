@@ -12,14 +12,8 @@ import Utils (prettyPrint, prettyPrintList)
 import Web.Scotty
 
 main :: IO ()
--- main = do
---   let tokens = lexLambda "(\\x.x  x) zz"
---       parsedAST = parseLambda tokens
---       reducedAST = last (betaStepByStep (Just parsedAST))
--- putStrLn (prettyPrint reducedAST)
-
 main = scotty 3000 $ do
-  middleware $ cors (const $ Just viteCorsPolicy)
+  middleware $ cors (const $ Just corsPolicy)
 
   post "/full-reduce" $ do
     expr <- jsonData :: ActionM String
@@ -55,8 +49,8 @@ main = scotty 3000 $ do
         reducedASTs = betaStepByStep (Just parsedAST)
     json reducedASTs
 
-viteCorsPolicy :: CorsResourcePolicy
-viteCorsPolicy =
+corsPolicy :: CorsResourcePolicy
+corsPolicy =
   simpleCorsResourcePolicy
     { corsOrigins = Just (["http://localhost:5173"], True),
       corsMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
