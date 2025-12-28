@@ -40,7 +40,11 @@ instance ToJSON AST where
   toJSON (Abstraction (NodeVar (Variable v)) t) =
     object
       [ "operation" .= ("lam" :: String),
-        "lam_var" .= v,
+        "lam_var"
+          .= object
+            [ "operation" .= ("var" :: String),
+              "var" .= v
+            ],
         "body" .= t
       ]
 
