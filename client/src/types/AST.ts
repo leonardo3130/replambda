@@ -1,3 +1,5 @@
+import type { PrettyPrintable } from "./PrettyPrintable";
+
 export interface RawApplication {
   operation: "app";
   body: RawAST;
@@ -19,7 +21,7 @@ export interface RawVariable {
 export type RawAST = RawApplication | RawAbstraction | RawVariable;
 
 // Base AST class: abstract --> never instantiated directly
-export abstract class AST {
+export abstract class AST implements PrettyPrintable {
   abstract operation: "app" | "lam" | "var";
 
   abstract prettyPrint(): string;

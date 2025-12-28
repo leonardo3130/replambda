@@ -1,32 +1,31 @@
 import { apiManagerInstance } from "../api/apiManagerInstance";
-import type { AST } from "../types/AST";
-import { Token } from "../types/Token";
+import type { PrettyPrintable } from "../types/PrettyPrintable";
 
 // overloading to ensure correct type inference
 export async function handleCommand(
   command: "parse" | "reduce" | "step",
   input: string,
-): Promise<AST>;
+): Promise<PrettyPrintable>;
 
 export async function handleCommand(
   command: "stepbystep",
   input: string,
-): Promise<AST[]>;
+): Promise<PrettyPrintable[]>;
 
 export async function handleCommand(
   command: "tokenize",
   input: string,
-): Promise<Token[]>;
+): Promise<PrettyPrintable[]>;
 
 export async function handleCommand(
   command: string,
   input: string,
-): Promise<AST | Token[] | AST[] | undefined>;
+): Promise<PrettyPrintable | PrettyPrintable[] | undefined>;
 
 export async function handleCommand(
   command: string,
   input: string,
-): Promise<AST | Token[] | AST[] | undefined> {
+): Promise<PrettyPrintable | PrettyPrintable[] | undefined> {
   switch (command) {
     case "parse":
       return await apiManagerInstance.parse(input);

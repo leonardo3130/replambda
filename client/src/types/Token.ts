@@ -1,3 +1,5 @@
+import type { PrettyPrintable } from "./PrettyPrintable";
+
 const TokenType = {
   VAR: "variable",
   LPAR: "left_par",
@@ -16,7 +18,7 @@ export interface RawToken {
   value: string;
 }
 
-export class Token {
+export class Token implements PrettyPrintable {
   type: TokenType;
   value: string;
 
