@@ -1,3 +1,4 @@
+import type { Positionable } from "./Positionable";
 import type { PrettyPrintable } from "./PrettyPrintable";
 
 export interface RawApplication {
@@ -21,10 +22,14 @@ export interface RawVariable {
 export type RawAST = RawApplication | RawAbstraction | RawVariable;
 
 // Base AST class: abstract --> never instantiated directly
-export abstract class AST implements PrettyPrintable {
+export abstract class AST implements PrettyPrintable, Positionable {
+  x: number = -1;
+  y: number = -1;
   abstract operation: "app" | "lam" | "var";
 
   abstract prettyPrint(): string;
+
+  abstract visualize(): string;
 
   static fromJSON(json: RawAST): AST {
     // Determine the type of AST node based on the operation field
@@ -45,6 +50,11 @@ export abstract class AST implements PrettyPrintable {
         throw new Error(`Unknown AST operation`);
     }
   }
+
+  setPosition(x: number, y: number): void {
+    this.x = x;
+    this.y = y;
+  }
 }
 
 // Application node representing a function application
@@ -61,6 +71,10 @@ export class Application extends AST {
 
   prettyPrint(): string {
     return `(${this.body.prettyPrint()}) (${this.argument.prettyPrint()})`;
+  }
+
+  visualize(): string {
+    return `Application`;
   }
 }
 
@@ -79,6 +93,10 @@ export class Abstraction extends AST {
   prettyPrint(): string {
     return `λ${this.lam_var.prettyPrint()}. ${this.body.prettyPrint()}`;
   }
+
+  visualize(): string {
+    return `λ`;
+  }
 }
 
 // Variable node representing a variable
@@ -92,6 +110,10 @@ export class Variable extends AST {
   }
 
   prettyPrint(): string {
+    return this.name;
+  }
+
+  visualize(): string {
     return this.name;
   }
 }

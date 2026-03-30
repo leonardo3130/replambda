@@ -7,9 +7,16 @@ import Terminal, {
 import { v4 as uuidv4 } from "uuid";
 import { handleCommand } from "../lib/commands";
 import { helpMessage } from "../constants";
+import { AST } from "../types/AST";
 import type { PrettyPrintable } from "../types/PrettyPrintable";
 
-export const TerminalController = () => {
+interface TerminalControllerProps {
+  onAstChange?: (ast: AST | null) => void;
+}
+
+export const TerminalController: React.FC<TerminalControllerProps> = ({
+  onAstChange,
+}) => {
   const [terminalLineData, setTerminalLineData] = useState([
     <TerminalOutput key={uuidv4()}>Welcome !</TerminalOutput>,
   ]);
@@ -42,6 +49,14 @@ export const TerminalController = () => {
         if (Array.isArray(res)) {
           console.log("Array result:", res);
           ld.push(<TerminalInput key={uuidv4()}>{input.trim()}</TerminalInput>);
+
+          if (command === "stepbystep") {
+            const last = res.at(-1);
+            if (last instanceof AST) {
+              onAstChange?.(last);
+            }
+          }
+
           // Pretty print each result in the array
           res.forEach((r: PrettyPrintable) => {
             console.log(r.prettyPrint);
@@ -53,6 +68,14 @@ export const TerminalController = () => {
           console.log("Non-Array result:", res);
           console.log(res.prettyPrint);
           ld.push(<TerminalInput key={uuidv4()}>{input.trim()}</TerminalInput>);
+
+          if (
+            ["parse", "reduce", "step"].includes(command) &&
+            res instanceof AST
+          ) {
+            onAstChange?.(res);
+          }
+
           // Pretty print the single result
           ld.push(
             <TerminalOutput key={uuidv4()}>{res.prettyPrint()}</TerminalOutput>,
@@ -84,7 +107,7 @@ export const TerminalController = () => {
         colorMode={ColorMode.Dark}
         onInput={handleInput}
         startingInputValue="λx.x"
-        height="80vh"
+        height="72vh"
         TopButtonsPanel={() => null}
       >
         {terminalLineData}

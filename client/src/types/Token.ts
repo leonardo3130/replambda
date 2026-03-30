@@ -34,4 +34,8 @@ export class Token implements PrettyPrintable {
   prettyPrint(): string {
     return `${this.type}: ${this.value}`;
   }
+
+  visualize(): string {
+    return this.prettyPrint();
+  }
 }

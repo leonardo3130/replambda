@@ -58,6 +58,13 @@ The frontend sends lambda expressions to the backend and can:
 - perform full reduction
 - return step-by-step reductions
 
+### AST Visualizer
+
+- The UI includes an AST tree visualizer (powered by `react-d3-tree`) next to the REPL.
+- The tree updates when you run: `parse`, `step`, `reduce`, or `stepbystep`.
+- You can pan/zoom the tree directly in the visualizer area.
+- Node labels are compact (`app`, `lam`, variable names) to keep trees readable.
+
 Backend endpoints (POST):
 
 - `/tokens`
