@@ -60,7 +60,6 @@ lexLambda s = preprocess s ++ [Token End "END"]
 
 -- String preprocessing (spaces handling)
 preprocess :: String -> [Token]
--- preprocess = reverse . removeUselessSpaces . removeRedundantSpaces . reverse . removeRedundantSpaces . (`tokenize` [])
 preprocess = removeUselessSpaces . collapseSpaces . reverse . removeRedundantSpaces . reverse . removeRedundantSpaces . (`tokenize` [])
 
 -- Produces a list of token in the submitted Lambda calculus program

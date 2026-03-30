@@ -1,4 +1,4 @@
--- Lexical analysis for the naive lambda calculus.
+-- Parser for the naive lambda calculus.
 {-# LANGUAGE OverloadedStrings #-}
 
 module Parser where

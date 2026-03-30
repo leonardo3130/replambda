@@ -1,5 +1,4 @@
 -- Alpha conversion on AST
-
 module Alpha where
 
 import Parser
